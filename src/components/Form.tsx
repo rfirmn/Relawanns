@@ -611,287 +611,320 @@ const Form = () => {
                 <div className="container-custom">
                     <div className="max-w-2xl mx-auto">
 
-                        {/* Header */}
-                        <motion.div
-                            initial={{ opacity: 0, y: 20 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            className="text-center mb-8"
-                        >
-                            <h2 className="mb-2">Pendaftaran Volunteer</h2>
-                            {eventDetails && (
-                                <div className="mb-4 p-4 bg-gray-50 rounded-xl border border-gray-100 dark:bg-gray-800 dark:border-gray-700">
-                                    <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100">{eventDetails.name}</h3>
-                                    <div className="flex flex-col md:flex-row justify-center gap-2 md:gap-4 text-sm text-gray-600 dark:text-gray-400 mt-2">
-                                        <span className="flex items-center justify-center gap-1">
-                                            <Calendar size={14} /> {new Date(eventDetails.date).toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
-                                        </span>
-                                        <span className="hidden md:inline">•</span>
-                                        {eventDetails.location && (
-                                            <span className="flex items-center justify-center gap-1">
-                                                <MapPin size={14} /> {eventDetails.location}
-                                            </span>
-                                        )}
-                                    </div>
-                                    {eventDetails.description && (
-                                        <p className="text-sm text-gray-500 mt-2 italic">"{eventDetails.description}"</p>
-                                    )}
-                                </div>
-                            )}
-                            <p className="text-gray-500">Langkah {currentStep} dari 3</p>
-
-                            {/* Progress Bar */}
-                            <div className="w-full bg-gray-200 h-2 rounded-full mt-4 overflow-hidden">
-                                <motion.div
-                                    className="h-full bg-black"
-                                    initial={{ width: '33%' }}
-                                    animate={{ width: `${(currentStep / 3) * 100}%` }}
-                                    transition={{ duration: 0.3 }}
-                                />
+                        {/* Conditional Rendering based on Event Status */}
+                        {statusLoading ? (
+                            <div className="flex flex-col items-center justify-center py-20">
+                                <div className="w-10 h-10 border-4 border-black border-t-transparent rounded-full animate-spin mb-4"></div>
+                                <p className="text-gray-500">Memuat info pendaftaran...</p>
                             </div>
-                        </motion.div>
-
-                        <motion.div
-                            ref={formRef}
-                            className="bg-white rounded-3xl shadow-xl p-6 md:p-10 border border-gray-100"
-                            initial={{ opacity: 0, y: 20 }}
-                            animate={{ opacity: 1, y: 0 }}
-                        >
-                            {isSubmitted ? (
-                                <div className="text-center py-12">
-                                    <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
-                                        <CheckCircle2 size={40} className="text-green-600" />
-                                    </div>
-                                    <h3 className="mb-3">Pendaftaran Berhasil!</h3>
-                                    <p className="text-gray-500">Terima kasih telah mendaftar.</p>
+                        ) : !registrationOpen ? (
+                            <motion.div
+                                initial={{ opacity: 0, scale: 0.9 }}
+                                animate={{ opacity: 1, scale: 1 }}
+                                className="bg-white rounded-3xl shadow-xl p-10 border border-gray-100 text-center max-w-xl mx-auto"
+                            >
+                                <div className="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                                    <Calendar size={40} className="text-gray-400" />
                                 </div>
-                            ) : (
-                                <form onSubmit={handleSubmit} className="space-y-6">
-
-                                    {/* ----- STEP 1: DATA DIRI ----- */}
-                                    {currentStep === 1 && (
-                                        <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="space-y-5">
-                                            <h3 className="text-xl font-semibold mb-4">Informasi Pribadi</h3>
-
-                                            {/* Nama */}
-                                            <div>
-                                                <label className="block text-sm font-medium text-black mb-2">Nama Lengkap <span className="text-red-500">*</span></label>
-                                                <input type="text" name="name" value={formData.name} onChange={handleInputChange}
-                                                    className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent transition-all text-black" placeholder="Nama sesuai KTP" required />
-                                                <ErrorMsg msg={validationErrors.name} />
+                                <h2 className="text-2xl font-bold mb-3 text-gray-800">Pendaftaran Ditutup</h2>
+                                <p className="text-gray-500 mb-6">
+                                    Mohon maaf, saat ini tidak ada pendaftaran event yang sedang dibuka.
+                                    Pantau terus Instagram kami untuk info selanjutnya!
+                                </p>
+                                <a
+                                    href="https://instagram.com/relawanns"
+                                    target="_blank"
+                                    rel="noreferrer"
+                                    className="px-6 py-3 bg-black text-white rounded-full font-medium hover:bg-gray-800 transition-all inline-flex items-center gap-2"
+                                >
+                                    Cek Instagram @relawanns
+                                </a>
+                            </motion.div>
+                        ) : (
+                            <>
+                                {/* Header - Only show if open */}
+                                <motion.div
+                                    initial={{ opacity: 0, y: 20 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    className="text-center mb-8"
+                                >
+                                    <h2 className="mb-2">Pendaftaran Volunteer</h2>
+                                    {eventDetails && (
+                                        <div className="mb-4 p-4 bg-gray-50 rounded-xl border border-gray-100 dark:bg-gray-800 dark:border-gray-700">
+                                            <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100">{eventDetails.name}</h3>
+                                            <div className="flex flex-col md:flex-row justify-center gap-2 md:gap-4 text-sm text-gray-600 dark:text-gray-400 mt-2">
+                                                <span className="flex items-center justify-center gap-1">
+                                                    <Calendar size={14} /> {new Date(eventDetails.date).toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
+                                                </span>
+                                                <span className="hidden md:inline">•</span>
+                                                {eventDetails.location && (
+                                                    <span className="flex items-center justify-center gap-1">
+                                                        <MapPin size={14} /> {eventDetails.location}
+                                                    </span>
+                                                )}
                                             </div>
-
-                                            {/* Email */}
-                                            <div>
-                                                <label className="block text-sm font-medium text-black mb-2">Email <span className="text-red-500">*</span></label>
-                                                <input type="email" name="email" value={formData.email} onChange={handleInputChange}
-                                                    className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent transition-all text-black" placeholder="email@example.com" required />
-                                                <ErrorMsg msg={validationErrors.email} />
-                                            </div>
-
-                                            {/* WA */}
-                                            <div>
-                                                <label className="block text-sm font-medium text-black mb-2">No. WhatsApp <span className="text-red-500">*</span></label>
-                                                <input type="tel" name="phone" value={formData.phone} onChange={handleInputChange}
-                                                    className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent transition-all text-black" placeholder="08xxxxxxxxxx" required />
-                                                <ErrorMsg msg={validationErrors.phone} />
-                                            </div>
-
-                                            <div className="grid grid-cols-2 gap-4">
-                                                {/* Usia */}
-                                                <div>
-                                                    <label className="block text-sm font-medium text-black mb-2">Usia <span className="text-red-500">*</span></label>
-                                                    <input type="number" name="age" value={formData.age} onChange={handleInputChange}
-                                                        className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent transition-all text-black" placeholder="17-60" required />
-                                                    <ErrorMsg msg={validationErrors.age} />
-                                                </div>
-                                                {/* Kota */}
-                                                <div>
-                                                    <label className="block text-sm font-medium text-black mb-2">Kota <span className="text-red-500">*</span></label>
-                                                    <input type="text" name="city" value={formData.city} onChange={handleInputChange}
-                                                        className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent transition-all text-black" placeholder="Jakarta" required />
-                                                    <ErrorMsg msg={validationErrors.city} />
-                                                </div>
-                                            </div>
-
-                                            {/* IG */}
-                                            <div>
-                                                <label className="block text-sm font-medium text-black mb-2">Akun Instagram (Aktif) <span className="text-red-500">*</span></label>
-                                                <input type="text" name="instagramUsername" value={formData.instagramUsername} onChange={handleInputChange}
-                                                    className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent transition-all text-black" placeholder="@username" required />
-                                                <ErrorMsg msg={validationErrors.instagramUsername} />
-                                            </div>
-
-                                            {/* History */}
-                                            <div>
-                                                <label className="block text-sm font-medium text-black mb-2">Pernah ikut kegiatan Relawanns? <span className="text-red-500">*</span></label>
-                                                <CustomDropdown
-                                                    value={formData.participationHistory}
-                                                    onChange={(val) => handleInputChange({ target: { name: 'participationHistory', value: val } } as any)}
-                                                    options={[
-                                                        { value: 'Sudah Pernah', label: 'Sudah Pernah' },
-                                                        { value: 'Belum Pernah', label: 'Belum Pernah' }
-                                                    ]}
-                                                    placeholder="Pilih Jawaban"
-                                                    error={validationErrors.participationHistory || ''}
-                                                />
-                                            </div>
-                                        </motion.div>
+                                            {eventDetails.description && (
+                                                <p className="text-sm text-gray-500 mt-2 italic">"{eventDetails.description}"</p>
+                                            )}
+                                        </div>
                                     )}
+                                    <p className="text-gray-500">Langkah {currentStep} dari 3</p>
 
-                                    {/* ----- STEP 2: ATRIBUT & TASK ----- */}
-                                    {currentStep === 2 && (
-                                        <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="space-y-6">
-                                            <h3 className="text-xl font-semibold mb-4">Atribut & Tugas</h3>
+                                    {/* Progress Bar */}
+                                    <div className="w-full bg-gray-200 h-2 rounded-full mt-4 overflow-hidden">
+                                        <motion.div
+                                            className="h-full bg-black"
+                                            initial={{ width: '33%' }}
+                                            animate={{ width: `${(currentStep / 3) * 100}%` }}
+                                            transition={{ duration: 0.3 }}
+                                        />
+                                    </div>
+                                </motion.div>
 
-                                            {/* Vest Size */}
-                                            <div>
-                                                <label className="block text-sm font-medium text-black mb-2">Pilih Ukuran Vest <span className="text-red-500">*</span></label>
+                                <motion.div
+                                    ref={formRef}
+                                    className="bg-white rounded-3xl shadow-xl p-6 md:p-10 border border-gray-100"
+                                    initial={{ opacity: 0, y: 20 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                >
+                                    {isSubmitted ? (
+                                        <div className="text-center py-12">
+                                            <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                                                <CheckCircle2 size={40} className="text-green-600" />
+                                            </div>
+                                            <h3 className="mb-3">Pendaftaran Berhasil!</h3>
+                                            <p className="text-gray-500">Terima kasih telah mendaftar.</p>
+                                        </div>
+                                    ) : (
+                                        <form onSubmit={handleSubmit} className="space-y-6">
 
-                                                {/* Vest Image */}
-                                                <div className="flex justify-center mb-6">
-                                                    <div className="relative group">
-                                                        <div className="absolute -inset-1 bg-gradient-to-r from-gray-200 to-gray-100 rounded-3xl blur opacity-25 group-hover:opacity-50 transition duration-1000 group-hover:duration-200"></div>
-                                                        <img
-                                                            src="/img/vest.webp"
-                                                            alt="Vest Relawanns"
-                                                            style={{ width: '220px', height: 'auto' }}
-                                                            className="relative object-cover rounded-3xl shadow-2xl border-4 border-white transform transition-transform duration-500 hover:scale-[1.02]"
+                                            {/* ----- STEP 1: DATA DIRI ----- */}
+                                            {currentStep === 1 && (
+                                                <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="space-y-5">
+                                                    <h3 className="text-xl font-semibold mb-4">Informasi Pribadi</h3>
+
+                                                    {/* Nama */}
+                                                    <div>
+                                                        <label className="block text-sm font-medium text-black mb-2">Nama Lengkap <span className="text-red-500">*</span></label>
+                                                        <input type="text" name="name" value={formData.name} onChange={handleInputChange}
+                                                            className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent transition-all text-black" placeholder="Nama sesuai KTP" required />
+                                                        <ErrorMsg msg={validationErrors.name} />
+                                                    </div>
+
+                                                    {/* Email */}
+                                                    <div>
+                                                        <label className="block text-sm font-medium text-black mb-2">Email <span className="text-red-500">*</span></label>
+                                                        <input type="email" name="email" value={formData.email} onChange={handleInputChange}
+                                                            className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent transition-all text-black" placeholder="email@example.com" required />
+                                                        <ErrorMsg msg={validationErrors.email} />
+                                                    </div>
+
+                                                    {/* WA */}
+                                                    <div>
+                                                        <label className="block text-sm font-medium text-black mb-2">No. WhatsApp <span className="text-red-500">*</span></label>
+                                                        <input type="tel" name="phone" value={formData.phone} onChange={handleInputChange}
+                                                            className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent transition-all text-black" placeholder="08xxxxxxxxxx" required />
+                                                        <ErrorMsg msg={validationErrors.phone} />
+                                                    </div>
+
+                                                    <div className="grid grid-cols-2 gap-4">
+                                                        {/* Usia */}
+                                                        <div>
+                                                            <label className="block text-sm font-medium text-black mb-2">Usia <span className="text-red-500">*</span></label>
+                                                            <input type="number" name="age" value={formData.age} onChange={handleInputChange}
+                                                                className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent transition-all text-black" placeholder="17-60" required />
+                                                            <ErrorMsg msg={validationErrors.age} />
+                                                        </div>
+                                                        {/* Kota */}
+                                                        <div>
+                                                            <label className="block text-sm font-medium text-black mb-2">Kota <span className="text-red-500">*</span></label>
+                                                            <input type="text" name="city" value={formData.city} onChange={handleInputChange}
+                                                                className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent transition-all text-black" placeholder="Jakarta" required />
+                                                            <ErrorMsg msg={validationErrors.city} />
+                                                        </div>
+                                                    </div>
+
+                                                    {/* IG */}
+                                                    <div>
+                                                        <label className="block text-sm font-medium text-black mb-2">Akun Instagram (Aktif) <span className="text-red-500">*</span></label>
+                                                        <input type="text" name="instagramUsername" value={formData.instagramUsername} onChange={handleInputChange}
+                                                            className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent transition-all text-black" placeholder="@username" required />
+                                                        <ErrorMsg msg={validationErrors.instagramUsername} />
+                                                    </div>
+
+                                                    {/* History */}
+                                                    <div>
+                                                        <label className="block text-sm font-medium text-black mb-2">Pernah ikut kegiatan Relawanns? <span className="text-red-500">*</span></label>
+                                                        <CustomDropdown
+                                                            value={formData.participationHistory}
+                                                            onChange={(val) => handleInputChange({ target: { name: 'participationHistory', value: val } } as any)}
+                                                            options={[
+                                                                { value: 'Sudah Pernah', label: 'Sudah Pernah' },
+                                                                { value: 'Belum Pernah', label: 'Belum Pernah' }
+                                                            ]}
+                                                            placeholder="Pilih Jawaban"
+                                                            error={validationErrors.participationHistory || ''}
                                                         />
                                                     </div>
-                                                </div>
+                                                </motion.div>
+                                            )}
 
-                                                {/* Size Chart Visualization Placeholder */}
-                                                <div className="bg-gray-50 rounded-xl p-4 mb-4 border border-gray-200 text-sm md:text-base">
-                                                    <p className="font-medium mb-2 text-center">Size Chart Vest</p>
-                                                    <div className="grid grid-cols-1 gap-2 text-gray-600">
-                                                        <div className="flex justify-between border-b pb-1"><span>M</span> <span>Panjang 62 cm, Lingkar Dada 53 cm</span></div>
-                                                        <div className="flex justify-between border-b pb-1"><span>L</span> <span>Panjang 64 cm, Lingkar Dada 55 cm</span></div>
-                                                        <div className="flex justify-between"><span>XL</span> <span>Panjang 64 cm, Lingkar Dada 57 cm</span></div>
+                                            {/* ----- STEP 2: ATRIBUT & TASK ----- */}
+                                            {currentStep === 2 && (
+                                                <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="space-y-6">
+                                                    <h3 className="text-xl font-semibold mb-4">Atribut & Tugas</h3>
+
+                                                    {/* Vest Size */}
+                                                    <div>
+                                                        <label className="block text-sm font-medium text-black mb-2">Pilih Ukuran Vest <span className="text-red-500">*</span></label>
+
+                                                        {/* Vest Image */}
+                                                        <div className="flex justify-center mb-6">
+                                                            <div className="relative group">
+                                                                <div className="absolute -inset-1 bg-gradient-to-r from-gray-200 to-gray-100 rounded-3xl blur opacity-25 group-hover:opacity-50 transition duration-1000 group-hover:duration-200"></div>
+                                                                <img
+                                                                    src="/img/vest.webp"
+                                                                    alt="Vest Relawanns"
+                                                                    style={{ width: '220px', height: 'auto' }}
+                                                                    className="relative object-cover rounded-3xl shadow-2xl border-4 border-white transform transition-transform duration-500 hover:scale-[1.02]"
+                                                                />
+                                                            </div>
+                                                        </div>
+
+                                                        {/* Size Chart Visualization Placeholder */}
+                                                        <div className="bg-gray-50 rounded-xl p-4 mb-4 border border-gray-200 text-sm md:text-base">
+                                                            <p className="font-medium mb-2 text-center">Size Chart Vest</p>
+                                                            <div className="grid grid-cols-1 gap-2 text-gray-600">
+                                                                <div className="flex justify-between border-b pb-1"><span>M</span> <span>Panjang 62 cm, Lingkar Dada 53 cm</span></div>
+                                                                <div className="flex justify-between border-b pb-1"><span>L</span> <span>Panjang 64 cm, Lingkar Dada 55 cm</span></div>
+                                                                <div className="flex justify-between"><span>XL</span> <span>Panjang 64 cm, Lingkar Dada 57 cm</span></div>
+                                                            </div>
+                                                        </div>
+
+                                                        <CustomDropdown
+                                                            value={formData.vestSize}
+                                                            onChange={(val) => handleInputChange({ target: { name: 'vestSize', value: val } } as any)}
+                                                            options={[
+                                                                { value: 'M', label: 'M — Panjang 62 cm, Lingkar Dada 53 cm' },
+                                                                { value: 'L', label: 'L — Panjang 64 cm, Lingkar Dada 55 cm' },
+                                                                { value: 'XL', label: 'XL — Panjang 64 cm, Lingkar Dada 57 cm' }
+                                                            ]}
+                                                            placeholder="Pilih Ukuran"
+                                                            error={validationErrors.vestSize || ''}
+                                                        />
                                                     </div>
+
+                                                    <div className="border-t border-gray-100 my-4 pt-4"></div>
+                                                </motion.div>
+                                            )}
+
+                                            {/* ----- STEP 3: FINALISASI ----- */}
+                                            {currentStep === 3 && (
+                                                <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="space-y-6">
+                                                    <h3 className="text-xl font-semibold mb-4">Pembayaran</h3>
+
+                                                    {/* Summary */}
+                                                    <div className="bg-gray-50 rounded-xl p-4 text-sm text-gray-700 space-y-2 mb-6">
+                                                        <p><span className="font-semibold">Nama:</span> {formData.name}</p>
+                                                        <p><span className="font-semibold">Email:</span> {formData.email}</p>
+                                                        <p><span className="font-semibold">Vest:</span> {formData.vestSize} (Size)</p>
+                                                    </div>
+
+                                                    {/* TikTok Proof */}
+                                                    <div>
+                                                        <label className="block text-sm font-medium text-black mb-1">1. Follow TikTok Kami <span className="text-red-500">*</span></label>
+                                                        <a href="https://www.tiktok.com/@relawanns" target="_blank" rel="noreferrer" className="text-blue-600 text-sm hover:underline mb-3 inline-block font-medium">
+                                                            Klik disini: tiktok.com/@relawanns
+                                                        </a>
+                                                        <p className="text-xs text-gray-500 mb-2">Upload bukti follow (screenshot)</p>
+                                                        <FileUpload
+                                                            id="tiktokProof"
+                                                            onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleFileChange(e, 'tiktokProof')}
+                                                            fileName={fileNames.tiktok}
+                                                            error={fileErrors.tiktok}
+                                                            onRemove={() => removeFile('tiktokProof')}
+                                                        />
+                                                    </div>
+
+                                                    {/* IG Proof */}
+                                                    <div>
+                                                        <label className="block text-sm font-medium text-black mb-1">2. Follow Instagram Kami <span className="text-red-500">*</span></label>
+                                                        <p className="text-sm text-gray-600 mb-3">@relawanns</p>
+                                                        <p className="text-xs text-gray-500 mb-2">Upload bukti follow (screenshot)</p>
+                                                        <FileUpload
+                                                            id="instagramProof"
+                                                            onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleFileChange(e, 'instagramProof')}
+                                                            fileName={fileNames.instagram}
+                                                            error={fileErrors.instagram}
+                                                            onRemove={() => removeFile('instagramProof')}
+                                                        />
+                                                    </div>
+
+                                                    {/* Payment Proof */}
+                                                    <div>
+                                                        <label className="block text-sm font-medium text-black mb-2">Upload Bukti Pembayaran <span className="text-red-500">*</span></label>
+                                                        <FileUpload
+                                                            id="paymentProof"
+                                                            onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleFileChange(e, 'paymentProof')}
+                                                            fileName={fileNames.payment}
+                                                            error={fileErrors.payment}
+                                                            onRemove={() => removeFile('paymentProof')}
+                                                        />
+                                                    </div>
+                                                </motion.div>
+                                            )}
+
+                                            {/* Navigation Buttons */}
+                                            {/* Navigation Buttons */}
+                                            <div className="flex items-center justify-between pt-8 mt-4 border-t border-gray-100">
+                                                <div>
+                                                    {currentStep > 1 && (
+                                                        <button
+                                                            type="button"
+                                                            onClick={prevStep}
+                                                            disabled={isSubmitting}
+                                                            className="px-6 py-2.5 rounded-full border border-gray-200 text-red-600 font-medium hover:bg-red-50 transition-all flex items-center gap-2 group"
+                                                        >
+                                                            <ChevronLeft size={18} className="group-hover:-translate-x-1 transition-transform" />
+                                                            Kembali
+                                                        </button>
+                                                    )}
                                                 </div>
 
-                                                <CustomDropdown
-                                                    value={formData.vestSize}
-                                                    onChange={(val) => handleInputChange({ target: { name: 'vestSize', value: val } } as any)}
-                                                    options={[
-                                                        { value: 'M', label: 'M — Panjang 62 cm, Lingkar Dada 53 cm' },
-                                                        { value: 'L', label: 'L — Panjang 64 cm, Lingkar Dada 55 cm' },
-                                                        { value: 'XL', label: 'XL — Panjang 64 cm, Lingkar Dada 57 cm' }
-                                                    ]}
-                                                    placeholder="Pilih Ukuran"
-                                                    error={validationErrors.vestSize || ''}
-                                                />
+                                                <div>
+                                                    {currentStep < 3 && (
+                                                        <button
+                                                            type="button"
+                                                            onClick={nextStep}
+                                                            className="px-8 py-2.5 rounded-full bg-black text-white font-medium hover:bg-gray-900 transition-all flex items-center gap-2 shadow-md hover:shadow-lg group"
+                                                        >
+                                                            Lanjut
+                                                            <ChevronRight size={18} className="group-hover:translate-x-1 transition-transform" />
+                                                        </button>
+                                                    )}
+                                                </div>
                                             </div>
 
-                                            <div className="border-t border-gray-100 my-4 pt-4"></div>
-                                        </motion.div>
-                                    )}
-
-                                    {/* ----- STEP 3: FINALISASI ----- */}
-                                    {currentStep === 3 && (
-                                        <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="space-y-6">
-                                            <h3 className="text-xl font-semibold mb-4">Pembayaran</h3>
-
-                                            {/* Summary */}
-                                            <div className="bg-gray-50 rounded-xl p-4 text-sm text-gray-700 space-y-2 mb-6">
-                                                <p><span className="font-semibold">Nama:</span> {formData.name}</p>
-                                                <p><span className="font-semibold">Email:</span> {formData.email}</p>
-                                                <p><span className="font-semibold">Vest:</span> {formData.vestSize} (Size)</p>
-                                            </div>
-
-                                            {/* TikTok Proof */}
-                                            <div>
-                                                <label className="block text-sm font-medium text-black mb-1">1. Follow TikTok Kami <span className="text-red-500">*</span></label>
-                                                <a href="https://www.tiktok.com/@relawanns" target="_blank" rel="noreferrer" className="text-blue-600 text-sm hover:underline mb-3 inline-block font-medium">
-                                                    Klik disini: tiktok.com/@relawanns
-                                                </a>
-                                                <p className="text-xs text-gray-500 mb-2">Upload bukti follow (screenshot)</p>
-                                                <FileUpload
-                                                    id="tiktokProof"
-                                                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleFileChange(e, 'tiktokProof')}
-                                                    fileName={fileNames.tiktok}
-                                                    error={fileErrors.tiktok}
-                                                    onRemove={() => removeFile('tiktokProof')}
-                                                />
-                                            </div>
-
-                                            {/* IG Proof */}
-                                            <div>
-                                                <label className="block text-sm font-medium text-black mb-1">2. Follow Instagram Kami <span className="text-red-500">*</span></label>
-                                                <p className="text-sm text-gray-600 mb-3">@relawanns</p>
-                                                <p className="text-xs text-gray-500 mb-2">Upload bukti follow (screenshot)</p>
-                                                <FileUpload
-                                                    id="instagramProof"
-                                                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleFileChange(e, 'instagramProof')}
-                                                    fileName={fileNames.instagram}
-                                                    error={fileErrors.instagram}
-                                                    onRemove={() => removeFile('instagramProof')}
-                                                />
-                                            </div>
-
-                                            {/* Payment Proof */}
-                                            <div>
-                                                <label className="block text-sm font-medium text-black mb-2">Upload Bukti Pembayaran <span className="text-red-500">*</span></label>
-                                                <FileUpload
-                                                    id="paymentProof"
-                                                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleFileChange(e, 'paymentProof')}
-                                                    fileName={fileNames.payment}
-                                                    error={fileErrors.payment}
-                                                    onRemove={() => removeFile('paymentProof')}
-                                                />
-                                            </div>
-                                        </motion.div>
-                                    )}
-
-                                    {/* Navigation Buttons */}
-                                    {/* Navigation Buttons */}
-                                    <div className="flex items-center justify-between pt-8 mt-4 border-t border-gray-100">
-                                        <div>
-                                            {currentStep > 1 && (
-                                                <button
-                                                    type="button"
-                                                    onClick={prevStep}
-                                                    disabled={isSubmitting}
-                                                    className="px-6 py-2.5 rounded-full border border-gray-200 text-red-600 font-medium hover:bg-red-50 transition-all flex items-center gap-2 group"
-                                                >
-                                                    <ChevronLeft size={18} className="group-hover:-translate-x-1 transition-transform" />
-                                                    Kembali
-                                                </button>
+                                            {/* Submit Button (Only Step 3) - Full width below nav */}
+                                            {currentStep === 3 && (
+                                                <div className="mt-6">
+                                                    <button
+                                                        type="submit"
+                                                        disabled={!registrationOpen || isSubmitting}
+                                                        style={{ backgroundColor: (!registrationOpen || isSubmitting) ? '#9ca3af' : '#000000', color: '#ffffff' }}
+                                                        className={`w-full py-4 rounded-xl font-bold text-lg transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-1 ${(!registrationOpen || isSubmitting) ? 'cursor-not-allowed' : ''}`
+                                                        }
+                                                    >
+                                                        {isSubmitting ? 'Memproses...' : 'Kirim Pendaftaran'}
+                                                    </button>
+                                                </div>
                                             )}
-                                        </div>
 
-                                        <div>
-                                            {currentStep < 3 && (
-                                                <button
-                                                    type="button"
-                                                    onClick={nextStep}
-                                                    className="px-8 py-2.5 rounded-full bg-black text-white font-medium hover:bg-gray-900 transition-all flex items-center gap-2 shadow-md hover:shadow-lg group"
-                                                >
-                                                    Lanjut
-                                                    <ChevronRight size={18} className="group-hover:translate-x-1 transition-transform" />
-                                                </button>
-                                            )}
-                                        </div>
-                                    </div>
-
-                                    {/* Submit Button (Only Step 3) - Full width below nav */}
-                                    {currentStep === 3 && (
-                                        <div className="mt-6">
-                                            <button
-                                                type="submit"
-                                                disabled={!registrationOpen || isSubmitting}
-                                                style={{ backgroundColor: (!registrationOpen || isSubmitting) ? '#9ca3af' : '#000000', color: '#ffffff' }}
-                                                className={`w-full py-4 rounded-xl font-bold text-lg transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-1 ${(!registrationOpen || isSubmitting) ? 'cursor-not-allowed' : ''}`
-                                                }
-                                            >
-                                                {isSubmitting ? 'Memproses...' : 'Kirim Pendaftaran'}
-                                            </button>
-                                        </div>
+                                        </form>
                                     )}
-
-                                </form>
-                            )}
-                        </motion.div>
+                                </motion.div>
+                            </>
+                        )}
                     </div>
                 </div>
             </section>
