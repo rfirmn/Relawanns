@@ -1,0 +1,52 @@
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+build/
+dist-ssr
+*.local
+
+# Scripts
+script/
+
+# Environment variables
+.env
+.env.local
+.env.production
+.env.development
+.env.vercel
+
+# Bot folder (contains sensitive tokens and credentials)
+bot/
+
+# Vercel
+.vercel
+
+# Netlify
+.netlify
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+
+# Logs
+*.log
+npm-debug.log*
+
+# Database backups
+*.sql.backup
+*.db
+
+# Sensitive files
+*secret*
+*private*
+*.pem
+*.key
+
+# Google Credentials
+credentials.json
