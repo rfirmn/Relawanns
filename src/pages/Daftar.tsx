@@ -24,7 +24,13 @@ interface EventData {
     description: string;
     max_quota: number;
     is_active: boolean;
+    price?: number; // Added price
 }
+
+// Helper
+const formatRupiah = (amount: number) => {
+    return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(amount);
+};
 
 // Event Hero Section with Dynamic Data (New System)
 const EventHeroSection = () => {
@@ -94,7 +100,8 @@ const EventHeroSection = () => {
                             alt="Event Relawan"
                             className="w-full h-full object-cover"
                         />
-                        <div className="absolute top-6 left-6">
+                        <div className="absolute top-6 left-6 flex flex-col gap-2">
+                            {/* Status Badge */}
                             <span
                                 className={`inline-block px-4 py-2 text-white rounded-full text-sm font-semibold shadow-lg transition-all duration-300`}
                                 style={{
@@ -112,6 +119,13 @@ const EventHeroSection = () => {
                                         : 'Pendaftaran Ditutup'
                                 }
                             </span>
+
+                            {/* Price Badge (If active) */}
+                            {eventData && (
+                                <span className="inline-block px-4 py-2 bg-white text-black rounded-full text-sm font-bold shadow-lg">
+                                    {eventData.price && eventData.price > 0 ? formatRupiah(eventData.price) : 'Gratis'}
+                                </span>
+                            )}
                         </div>
                     </motion.div>
 
@@ -262,7 +276,7 @@ const EventDetailsSection = () => {
                                 </div>
                             </motion.div>
 
-                            {/* Kategori */}
+                            {/* Biaya */}
                             <motion.div
                                 initial={{ opacity: 0, y: 20 }}
                                 whileInView={{ opacity: 1, y: 0 }}
@@ -273,6 +287,25 @@ const EventDetailsSection = () => {
                                 <div className="flex items-center gap-3 mb-3">
                                     <div className="w-10 h-10 rounded-xl bg-white flex items-center justify-center">
                                         <Tag size={18} className="text-[--color-primary]" />
+                                    </div>
+                                    <h5 className="text-black">Biaya Pendaftaran</h5>
+                                </div>
+                                <p className="font-bold text-2xl text-black">
+                                    {eventData.price && eventData.price > 0 ? formatRupiah(eventData.price) : 'Gratis'}
+                                </p>
+                            </motion.div>
+
+                            {/* Kategori */}
+                            <motion.div
+                                initial={{ opacity: 0, y: 20 }}
+                                whileInView={{ opacity: 1, y: 0 }}
+                                viewport={{ once: true }}
+                                transition={{ duration: 0.5, delay: 0.2 }}
+                                className="bg-[--color-gray-50] p-6 rounded-2xl"
+                            >
+                                <div className="flex items-center gap-3 mb-3">
+                                    <div className="w-10 h-10 rounded-xl bg-white flex items-center justify-center">
+                                        <CheckCircle2 size={18} className="text-[--color-primary]" />
                                     </div>
                                     <h5 className="text-black">Kategori</h5>
                                 </div>

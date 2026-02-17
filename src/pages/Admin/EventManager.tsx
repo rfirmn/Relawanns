@@ -11,6 +11,7 @@ interface EventData {
     description: string;
     max_quota: number;
     is_active: boolean;
+    price: number; // Added price
     current_registrants?: number; // Calculated field
 }
 
@@ -25,7 +26,8 @@ const EventManager = () => {
         date: '',
         location: '',
         description: '',
-        max_quota: ''
+        max_quota: '',
+        price: '' // Added price state
     });
 
     useEffect(() => {
@@ -67,6 +69,14 @@ const EventManager = () => {
         e.preventDefault();
         setSaving(true);
         try {
+            // Check mutex: If we are creating an ACTIVE event, close others first?
+            // User requested default validation "Open".
+            // Ideally we should close others if we enforce "Only 1 active".
+            // Let's do it for safety.
+
+            // 1. Close all other events first
+            await supabase.from('events').update({ is_active: false }).neq('id', '00000000-0000-0000-0000-000000000000');
+
             const { error } = await supabase
                 .from('events')
                 .insert([{
@@ -75,13 +85,14 @@ const EventManager = () => {
                     location: newEvent.location,
                     description: newEvent.description,
                     max_quota: parseInt(newEvent.max_quota),
-                    is_active: false // Default closed
+                    price: newEvent.price ? parseInt(newEvent.price.replace(/\D/g, '')) : 0, // Store numbers only
+                    is_active: true // Default OPEN as requested
                 }]);
 
             if (error) throw error;
 
-            toast.success('Event berhasil dibuat!');
-            setNewEvent({ name: '', date: '', location: '', description: '', max_quota: '100' }); // Reset form
+            toast.success('Event berhasil dibuat dan DIBUKA!');
+            setNewEvent({ name: '', date: '', location: '', description: '', max_quota: '100', price: '' }); // Reset form
             fetchEvents(); // Refresh list
         } catch (error) {
             console.error('Error creating event:', error);
@@ -125,6 +136,11 @@ const EventManager = () => {
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
         const { name, value } = e.target;
         setNewEvent(prev => ({ ...prev, [name]: value }));
+    };
+
+    // Helper to format currency
+    const formatRupiah = (amount: number) => {
+        return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(amount);
     };
 
     return (
@@ -198,6 +214,22 @@ const EventManager = () => {
                                 />
                             </div>
                         </div>
+
+                        {/* Price */}
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">Harga Pendaftaran (IDR)</label>
+                            <div className="relative">
+                                <input
+                                    type="number"
+                                    name="price"
+                                    value={newEvent.price}
+                                    onChange={handleChange}
+                                    className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                                    placeholder="89000"
+                                />
+                            </div>
+                            <p className="text-xs text-gray-500 mt-1">Isi 0 jika gratis</p>
+                        </div>
                     </div>
 
                     {/* Description */}
@@ -220,7 +252,7 @@ const EventManager = () => {
                             className="flex items-center justify-center gap-2 px-6 py-2.5 bg-black text-white rounded-xl hover:bg-gray-800 transition-colors disabled:opacity-50"
                         >
                             {saving ? <Loader2 className="animate-spin" size={18} /> : <Save size={18} />}
-                            Simpan Event
+                            Simpan & Buka Event
                         </button>
                     </div>
                 </form>
@@ -243,6 +275,7 @@ const EventManager = () => {
                                     <th className="py-3 px-2">Nama Event</th>
                                     <th className="py-3 px-2">Tanggal</th>
                                     <th className="py-3 px-2">Lokasi</th>
+                                    <th className="py-3 px-2">Harga</th>
                                     <th className="py-3 px-2">Pendaftar</th>
                                     <th className="py-3 px-2">Status</th>
                                     <th className="py-3 px-2">Aksi</th>
@@ -254,6 +287,9 @@ const EventManager = () => {
                                         <td className="py-3 px-2 font-medium">{event.name}</td>
                                         <td className="py-3 px-2">{new Date(event.date).toLocaleDateString('id-ID')}</td>
                                         <td className="py-3 px-2 text-sm text-gray-600">{event.location}</td>
+                                        <td className="py-3 px-2 text-sm font-medium">
+                                            {event.price && event.price > 0 ? formatRupiah(event.price) : 'Gratis'}
+                                        </td>
                                         <td className="py-3 px-2">
                                             <span className="font-semibold">{event.current_registrants}</span>
                                             <span className="text-gray-400 text-sm"> / {event.max_quota}</span>
@@ -273,8 +309,8 @@ const EventManager = () => {
                                             <button
                                                 onClick={() => handleToggleStatus(event.id, event.is_active)}
                                                 className={`text-xs px-3 py-1.5 rounded-lg border transition-colors ${event.is_active
-                                                        ? 'border-red-200 text-red-600 hover:bg-red-50'
-                                                        : 'border-green-200 text-green-600 hover:bg-green-50'
+                                                    ? 'border-red-200 text-red-600 hover:bg-red-50'
+                                                    : 'border-green-200 text-green-600 hover:bg-green-50'
                                                     }`}
                                             >
                                                 {event.is_active ? 'Tutup Pendaftaran' : 'Buka Pendaftaran'}
@@ -284,7 +320,7 @@ const EventManager = () => {
                                 ))}
                                 {events.length === 0 && (
                                     <tr>
-                                        <td colSpan={6} className="text-center py-8 text-gray-500">Belum ada event yang dibuat</td>
+                                        <td colSpan={7} className="text-center py-8 text-gray-500">Belum ada event yang dibuat</td>
                                     </tr>
                                 )}
                             </tbody>

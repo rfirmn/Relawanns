@@ -158,6 +158,7 @@ const Form = () => {
         location: string;
         description: string;
         max_quota: number;
+        price?: number;
     } | null>(null);
     const [registrationOpen, setRegistrationOpen] = useState(false); // Default false until loaded
     const [statusLoading, setStatusLoading] = useState(true);
